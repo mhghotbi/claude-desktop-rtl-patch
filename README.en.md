@@ -246,7 +246,7 @@ This project is a derivative work. Full attribution in [CREDITS.md](CREDITS.md).
 
 | Project | Author | What was used |
 | :--- | :--- | :--- |
-| [claude-desktop-rtl-patch](https://github.com/shraga100/claude-desktop-rtl-patch) | shraga100 | Original Windows RTL patch — this repo is a fork |
+| [claude-desktop-rtl-patch](https://github.com/shraga100/claude-desktop-rtl-patch) | shraga100 | Original Windows RTL patch — core patching mechanism incorporated from this project |
 | [claude-desktop-rtl-mac](https://github.com/soguy/claude-desktop-rtl-mac) | soguy | macOS patching design (clone + fuse disable + ad-hoc sign) and font-as-base64 approach |
 | [Vazirmatn](https://github.com/rastikerdar/vazirmatn) | Saber Rastikerdar | Persian/Arabic variable font (OFL license) |
 | [Claude-UniMath](https://github.com/DavidiBellaire/Claude-UniMath) | Davidi Bellaire | LaTeX-in-RTL isolation technique |

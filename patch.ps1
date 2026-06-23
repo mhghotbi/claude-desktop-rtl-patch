@@ -48,7 +48,7 @@ if (-not $IsAdmin) {
         [Net.ServicePointManager]::SecurityProtocol =
             [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
     } catch { }
-    $InstallUrl = "https://raw.githubusercontent.com/shraga100/claude-desktop-rtl-patch/main/install.ps1"
+    $InstallUrl = "https://raw.githubusercontent.com/mhghotbi/claude-desktop-rtl-patch/main/install.ps1"
     if ($Auto) { $env:CLAUDE_RTL_AUTO = '1' }
     Invoke-Expression (Invoke-RestMethod $InstallUrl)
     Exit
@@ -913,7 +913,7 @@ try {
 
 $stateDir      = Join-Path $env:ProgramData "ClaudeRtlPatch"
 $pubkeyPinFile = Join-Path $stateDir "trusted-pubkey.b64"
-$repoBase      = "https://raw.githubusercontent.com/shraga100/claude-desktop-rtl-patch/main"
+$repoBase      = "https://raw.githubusercontent.com/mhghotbi/claude-desktop-rtl-patch/main"
 $patchUrl      = "$repoBase/patch.ps1"
 $sigUrl        = "$repoBase/patch.ps1.sig"
 
@@ -934,7 +934,7 @@ if (-not (Test-Path $pubkeyPinFile)) {
     Write-Host "No pinned pubkey at $pubkeyPinFile." -ForegroundColor Red
     Write-Host "This computer has not bootstrapped a trust anchor yet." -ForegroundColor Yellow
     Write-Host "Run the manual installer once to fix this:" -ForegroundColor Yellow
-    Write-Host "  irm https://raw.githubusercontent.com/shraga100/claude-desktop-rtl-patch/main/install.ps1 | iex" -ForegroundColor Cyan
+    Write-Host "  irm https://raw.githubusercontent.com/mhghotbi/claude-desktop-rtl-patch/main/install.ps1 | iex" -ForegroundColor Cyan
     Pause-ThenExit 1
 }
 
@@ -1676,7 +1676,7 @@ $pubkeyPinFile  = Join-Path $stateDir "trusted-pubkey.b64"
 # pubkey (not a fingerprint of install.ps1's $ExpectedPubKey variable) means
 # the only thing we trust from the network is patch.ps1 itself, validated
 # byte-for-byte against the maintainer's offline private key.
-$repoBase       = "https://raw.githubusercontent.com/shraga100/claude-desktop-rtl-patch/main"
+$repoBase       = "https://raw.githubusercontent.com/mhghotbi/claude-desktop-rtl-patch/main"
 $patchUrl       = "$repoBase/patch.ps1"
 $sigUrl         = "$repoBase/patch.ps1.sig"
 
@@ -2454,7 +2454,7 @@ function Install-Patch {
             Write-Host "REFUSE to run until this is fixed (safe-by-default)." -ForegroundColor Yellow
             Write-Host ""
             Write-Host "Fix: re-run the installer from a clean PowerShell session:" -ForegroundColor Cyan
-            Write-Host "  irm https://raw.githubusercontent.com/shraga100/claude-desktop-rtl-patch/main/install.ps1 | iex" -ForegroundColor Cyan
+            Write-Host "  irm https://raw.githubusercontent.com/mhghotbi/claude-desktop-rtl-patch/main/install.ps1 | iex" -ForegroundColor Cyan
             Write-Host ""
         }
 

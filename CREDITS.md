@@ -9,9 +9,9 @@ This project is a derivative work. Full credit to the original authors.
 **Repository:** https://github.com/shraga100/claude-desktop-rtl-patch  
 **License:** MIT Copyright (c) 2026 shraga100
 
-This repo is a fork of shraga100's work. The core Windows patching mechanism
+This project builds on shraga100's work. The core Windows patching mechanism
 (`patch.ps1`, `install.ps1`, `src/rtl-core.js`, `src/rtl-payload.js`,
-`tools/`) originates from that project. Modifications made in this fork:
+`tools/`) originates from that project. Modifications made here:
 
 - Vazirmatn variable font embedded for RTL text rendering
 - Persian-specific detection improvements (RLM/LRM, ZWNJ notes, Persian numerals)
@@ -32,9 +32,9 @@ same design pattern established by soguy:
 - Disable the Electron ASAR integrity fuse via `@electron/fuses`
 - Re-sign with an ad-hoc codesign signature
 
-soguy's project is the original and recommended Mac patch; this fork adapts the
+soguy's project is the original and recommended Mac patch; this repo adapts the
 approach for Persian (Vazirmatn font, updated detection) as part of a unified
-Windows + macOS repo.
+Windows + macOS project.
 
 ---
 
