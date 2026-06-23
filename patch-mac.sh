@@ -22,11 +22,11 @@ TARGET_APP="$HOME/Applications/Claude-RTL.app"
 ASAR_PATH="$TARGET_APP/Contents/Resources/app.asar"
 ASAR_BAK="$TARGET_APP/Contents/Resources/app.asar.bak"
 
-# Files inside .vite/build/ that belong to the main process and must not be
-# patched (they run in Node, not the Chromium renderer).
+# Top-level .vite/build/*.js files that run in Node (no DOM) and must not receive
+# the renderer RTL payload. The Electron main entry (package.json "main", usually
+# index.pre.js) is resolved separately — see soguy/claude-desktop-rtl-mac patch.sh.
 SKIP_FILES=(
     'index.js'
-    'index.pre.js'
     'directMcpHost.js'
     'nodeHost.js'
     'shellPathWorker.js'
@@ -91,24 +91,45 @@ do_install() {
     log "Extracting app.asar..."
     npx --yes "$ASAR_PKG" extract "$ASAR_PATH" "$tmp_src"
 
-    # Find renderer files to patch.
-    local vite_dir="$tmp_src/renderer/.vite/build"
-    [[ -d "$vite_dir" ]] || die "Expected renderer at $vite_dir — Claude Desktop version may be unsupported."
+    # Renderer/preload bundles live under .vite/build/ inside app.asar (not
+    # renderer/.vite/build — that path does not exist). Matches soguy's patch.sh.
+    local vite_dir="$tmp_src/.vite/build"
+    [[ -d "$vite_dir" ]] || die ".vite/build/ not found in extracted ASAR at $vite_dir — Claude Desktop version may be unsupported."
 
-    local patched=0
+    local main_basename=''
+    if [[ -f "$tmp_src/package.json" ]]; then
+        main_basename="$(node -p "require('$tmp_src/package.json').main || ''" 2>/dev/null || true)"
+        main_basename="$(basename "$main_basename")"
+    fi
+
+    local patched=0 skipped=0
     while IFS= read -r -d '' js_file; do
         local base
         base="$(basename "$js_file")"
 
-        # Skip main-process files.
+        # Skip Electron main-process entry — RTL payload there prevents windows from opening.
+        if [[ -n "$main_basename" && "$base" == "$main_basename" ]]; then
+            log "Skipping $base (Electron main process)"
+            (( skipped++ )) || true
+            continue
+        fi
+
+        # Skip other Node-only bundles (workers, large main bundle).
         local skip=0
         for s in "${SKIP_FILES[@]}"; do
             [[ "$base" == "$s" ]] && skip=1 && break
         done
-        [[ "$skip" -eq 1 ]] && continue
+        if [[ "$skip" -eq 1 ]]; then
+            log "Skipping $base (Node / no DOM)"
+            (( skipped++ )) || true
+            continue
+        fi
 
         # Skip already-patched files (idempotency).
-        grep -q 'claude-rtl-font' "$js_file" 2>/dev/null && continue
+        if grep -q 'claude-rtl-font' "$js_file" 2>/dev/null; then
+            (( skipped++ )) || true
+            continue
+        fi
 
         # Prepend the RTL payload.
         local tmp_file
@@ -118,8 +139,12 @@ do_install() {
         (( patched++ ))
     done < <(find "$vite_dir" -maxdepth 1 -name '*.js' -print0)
 
-    [[ "$patched" -gt 0 ]] || die "No renderer files found to patch in $vite_dir"
+    if [[ "$patched" -eq 0 && "$skipped" -eq 0 ]]; then
+        die "No .js files found in $vite_dir — Claude Desktop structure may have changed."
+    fi
+    [[ "$patched" -gt 0 ]] || die "No renderer files found to patch in $vite_dir (all skipped or already patched)."
     ok "Injected RTL payload into $patched renderer file(s)."
+    [[ "$skipped" -gt 0 ]] && log "Skipped $skipped file(s)."
 
     # Repack ASAR.
     log "Repacking app.asar..."
